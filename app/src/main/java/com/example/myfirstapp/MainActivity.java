@@ -29,24 +29,40 @@ public class MainActivity extends AppCompatActivity {
     ColorSeekBar colorSeekBar;
     ColorSeekBar saturation_seekbar;
     ColorSeekBar brightness_seekbar;
+    ImageButton button;
+    boolean isOn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageButton button = (ImageButton) this.findViewById(R.id.imageButton);
-        button.setColorFilter(Color.argb(255, 0, 0, 255)); // Blue Tint
-        button.bringToFront();
+        button = (ImageButton) this.findViewById(R.id.imageButton);
+
         view = findViewById(R.id.view);
-
-
-
         float[] hsv = new float[3];
 //        Color.RGBToHSV(red, green, blue, hsv);
 
 
         seekBarCreation();
 
+        button.bringToFront();
+
+
+        button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                isOn = !isOn;
+                Log.d("Button", Boolean.toString(button.isSelected()));
+
+//                button.set
+                if (isOn) {
+                    button.setColorFilter(saturation_seekbar.getColor());
+                } else {
+                    button.setColorFilter(Color.WHITE);
+                }
+            }
+        });
     }
 
 
@@ -58,14 +74,21 @@ public class MainActivity extends AppCompatActivity {
 
         // i is hue (outa 100), i1 is saturation (out of 255) i2 color
         colorSeekBar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
+
             saturation_seekbar.setColorSeeds(new int[]{Color.WHITE, colorSeekBar.getColor()});
             view.setBackgroundColor(saturation_seekbar.getColor());
             Log.d("Color Change", Integer.toString(colorBarPosition));
+            if (isOn) {
+                button.setColorFilter(saturation_seekbar.getColor());
+            }
         });
 
         saturation_seekbar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
             view.setBackgroundColor(color);
             Log.d("Saturation Change", Integer.toString(colorBarPosition));
+            if (isOn) {
+                button.setColorFilter(saturation_seekbar.getColor());
+            }
         });
 
         brightness_seekbar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
