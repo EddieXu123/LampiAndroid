@@ -7,4 +7,8 @@
         <item>@color/blue</item>
         <item>@color/red</item>
     </array>
+    <array name="brightness_colors">
+        <item>@color/black</item>
+        <item>@color/white</item>
+    </array>
 </resources>

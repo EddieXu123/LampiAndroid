@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".MainActivity">
 
     <View
@@ -18,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
+
     <ImageButton
         android:id="@+id/imageButton"
         android:layout_width="116dp"
@@ -29,39 +31,70 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.973"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@android:drawable/ic_lock_power_off" />
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="419dp"
+        android:layout_height="244dp"
+        android:background="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/view"
+        app:layout_constraintVertical_bias="0.761" />
 
     <com.rtugeek.android.colorseekbar.ColorSeekBar
         android:id="@+id/color_seek_bar"
-        android:layout_width="347dp"
-        android:layout_height="28dp"
-        android:layout_margin="16dp"
-        app:colorSeekBarColorSeeds="@array/seekbar_colors"
+        android:layout_width="309dp"
+        android:layout_height="38dp"
+        app:barHeight="10dp"
+        app:barRadius="10dp"
+        app:colorSeeds="@array/seekbar_colors"
+        app:colorBarPosition="100"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.636" />
+        app:layout_constraintVertical_bias="0.585" />
 
     <com.rtugeek.android.colorseekbar.ColorSeekBar
-        android:id="@+id/alpha_seek_bar"
-        android:layout_width="347dp"
-        android:layout_height="28dp"
-        android:layout_margin="16dp"
-        app:colorSeekBarColorSeeds="@array/seekbar_colors"
+        android:id="@+id/saturation_seekbar"
+        android:layout_width="309dp"
+        android:layout_height="38dp"
+        app:barHeight="10dp"
+        app:barRadius="10dp"
+        app:colorSeeds="@array/seekbar_colors"
+        app:colorBarPosition="100"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.715" />
+        app:layout_constraintVertical_bias="0.685"
+        app:showAlphaBar="false" />
 
-    <!--    <com.rtugeek.android.colorseekbar.AlphaSeekBar-->
-<!--        android:id="@+id/alphaSeekBar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content" />-->
+    <com.rtugeek.android.colorseekbar.ColorSeekBar
+        android:id="@+id/brightness_seekbar"
+        android:layout_width="309dp"
+        android:layout_height="38dp"
+        app:barHeight="10dp"
+        app:barRadius="10dp"
+        app:colorSeeds="@array/brightness_colors"
+        app:colorBarPosition="100"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.785"
+        app:showAlphaBar="false" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
