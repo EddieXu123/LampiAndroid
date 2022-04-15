@@ -59,7 +59,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@android:drawable/ic_lock_power_off" />
+        app:srcCompat="@android:drawable/ic_lock_power_off"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <com.rtugeek.android.colorseekbar.ColorSeekBar
         android:id="@+id/color_seek_bar"
@@ -108,5 +109,14 @@
         app:layout_constraintVertical_bias="0.782"
         app:showAlphaBar="false" />
 
+    <ImageView
+        android:id="@+id/rectangleBackground"
+        android:layout_width="421dp"
+        android:layout_height="396dp"
+        android:background="@drawable/rectangle"
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
