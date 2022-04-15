@@ -110,10 +110,10 @@
         app:showAlphaBar="false" />
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/rectangleBackground"
         android:layout_width="421dp"
         android:layout_height="396dp"
-        android:src="@drawable/rectangle"
+        android:background="@drawable/rectangle"
         app:layout_constraintBottom_toBottomOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
