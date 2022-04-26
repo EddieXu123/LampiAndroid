@@ -307,16 +307,16 @@ public class MainActivity extends AppCompatActivity {
         myLampi = getMyLampi(lampiMacAddress);
 
         seekBarCreation();
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                getByteValues("hsv");
-                getByteValues("brightness");
-
-//                temp.dispose();
-            }
-        }, 0, 3000);
+//
+//        new Timer().scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                getByteValues("hsv");
+//                getByteValues("brightness");
+//
+////                temp.dispose();
+//            }
+//        }, 0, 3000);
 
 
         button.bringToFront();
