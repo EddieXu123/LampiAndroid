@@ -9,7 +9,10 @@ import androidx.annotation.RequiresApi;
 import android.bluetooth.BluetoothGatt;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.jakewharton.rx.transformer.ReplayingShare;
 
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuffColorFilter;
@@ -18,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,7 +34,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+
 import static android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_HIGH;
+
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -100,13 +106,24 @@ import com.rtugeek.android.colorseekbar.ColorSeekBar;
 //import com.welie.blessed.BluetoothPeripheral;
 //import com.welie.blessed.BluetoothPeripheralCallback;
 //import com.welie.blessed.ConnectionPriority;
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
@@ -120,13 +137,14 @@ public class MainActivity extends AppCompatActivity {
     ColorSeekBar saturation_seekbar;
     ColorSeekBar brightness_seekbar;
     ImageButton button;
-    private int brightness_position = 0;
-    private int color_position = 0;
-    private int saturation_position = 0;
+    private int brightness_position = 100;
+    private int color_position = 100;
+    private int saturation_position = 100;
     boolean isOn = true;
     ImageView imView;
     private final String lampiMacAddress = "B8:27:EB:CB:AF:1F";
     private GradientDrawable rectangle;
+    private RxBleDevice myLampi;
 
     Disposable temp;
     private final UUID onOffUUID = UUID.fromString("0004A7D3-D8A4-4FEA-8174-1736E808C066");
@@ -134,32 +152,9 @@ public class MainActivity extends AppCompatActivity {
     private final UUID hsvUUID = UUID.fromString("0002A7D3-D8A4-4FEA-8174-1736E808C066");
 
 
-    Handler handler = new Handler();
-    Runnable runnable;
-    int delay = 10000;
-
-    private boolean hasPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, ACCESS_COARSE_LOCATION_REQUEST);
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    RxBleDevice device;
-
-
-
-    private void scanBleDevices() {
-
-
-    }
-
     private byte[] getByteValues(String bar) {
         RxBleDevice myLampi = getMyLampi(lampiMacAddress);
+
         UUID tempUUID = onOffUUID;
         switch (bar) {
             case "hsv":
@@ -182,35 +177,39 @@ public class MainActivity extends AppCompatActivity {
         UUID toReadUUID = tempUUID;
         final byte[][] output = {new byte[]{50}};
 
-         temp = myLampi.establishConnection(false)
+        temp = myLampi.establishConnection(false)
                 .flatMapSingle(rxBleConnection -> rxBleConnection.readCharacteristic(toReadUUID))
                 .subscribe(
                         characteristicValue -> {
                             // Read characteristic value.
                             output[0] = characteristicValue;
 
-                            Log.d("Result", "READING: " + Arrays.toString(characteristicValue) + " " + output[0][0]);
+//                           temp.dispose();
                             if (bar.equals("brightness")) {
                                 brightness_position = byteToInt(output[0][0]);
+                                brightness_seekbar.setPosition(brightness_position, 0);
                             }
                             if (bar.equals("hsv")) {
-                                Log.d("Result", "ACTUAL HUE : " + output[0][0] + " Actual: SATURATION " + output[0][1] );
+                                Log.d("Result", "SAT POS : " + saturation_position);
+                                Log.d("Result", "ACTUAL HUE : " + output[0][0] + " Actual: SATURATION " + output[0][1]);
+                                color_position = byteToInt(output[0][0]);
+                                colorSeekBar.setPosition(color_position, 0);
+                                saturation_position = byteToInt(output[0][1]);
+                                saturation_seekbar.setPosition(saturation_position, 0);
                             }
-//                            writeToLamp(bar, output[0]);
-//                            brightness_seekbar.setPosition(output[0][0], 0);
+
+                            rectangle.setColorFilter(applyLightness(100 - brightness_position));
                         },
                         throwable -> {
                             // Handle an error here.
                             Log.d("Result", "READING" + " " + throwable.toString());
-                        }
-                );
-
+                        });
         return output[0];
     }
 
+
     private void writeToLamp(String bar, byte[] bytesToWrite) {
         RxBleDevice myLampi = getMyLampi(lampiMacAddress);
-
         UUID toWriteUUID;
 
         switch (bar) {
@@ -231,9 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
         }
 
-        Log.d("Result", "BAR : " + toWriteUUID);
-
-        myLampi.establishConnection(false)
+        temp = myLampi.establishConnection(false)
                 .flatMapSingle(rxBleConnection -> rxBleConnection.writeCharacteristic(toWriteUUID, bytesToWrite))
                 .subscribe(
                         characteristicValue -> {
@@ -251,35 +248,17 @@ public class MainActivity extends AppCompatActivity {
     private RxBleDevice getMyLampi(String lampiMAC) {
         RxBleClient rxBleClient = RxBleClient.create(this);
 
-        RxBleClient.updateLogOptions(new LogOptions.Builder()
-                .setLogLevel(LogConstants.INFO)
-                .setMacAddressLogSetting(LogConstants.MAC_ADDRESS_FULL)
-                .setUuidsLogSetting(LogConstants.UUIDS_FULL)
-                .setShouldLogAttributeValues(true)
-                .build()
-        );
-
-        // Enable Bluetooth
-        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        int REQUEST_ENABLE_BT = 1;
-        this.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-
         // Get my device
         RxBleDevice device = rxBleClient.getBleDevice(lampiMAC);
         return device;
     }
 
     private int byteToInt(byte input) {
-        int answer = 0;
-        // input: 0 -> 127 -> -128 -> -1
+        int answer;
         if (input < 0) {
-
-            answer = (int)((input + 255.0) / (127.0/50.0));
-            Log.d("Result", "BYTE TO INT : " + input + " " + answer);
+            answer = (int) ((input + 255.0) / (127.0 / 50.0));
         } else {
-            // 0 - 50;
-            answer = (int)((input) / (127.0/50.0));
-            Log.d("Result", "BYTE TO INT: " + input + " " + answer);
+            answer = (int) ((input) / (127.0 / 50.0));
         }
 
         return answer;
@@ -292,13 +271,13 @@ public class MainActivity extends AppCompatActivity {
         // Integer: 0 -> 50 -> 51 -> 100
         // Byte: 0 -> 128 -> -127 -> -1
         if (colorBarPosition < 50) { // 0->127
-            answer = (127.0/50.0) * (double)colorBarPosition;
+            answer = (127.0 / 50.0) * (double) colorBarPosition;
         } else {
-            answer = ((127.0/50.0) * (double)colorBarPosition) - 255;
+            answer = ((127.0 / 50.0) * (double) colorBarPosition) - 255;
         }
 
         Log.d("BRIGHTNESS", answer + "");
-        return new byte[]{(byte)answer};
+        return new byte[]{(byte) answer};
     }
 
     @Override
@@ -312,9 +291,32 @@ public class MainActivity extends AppCompatActivity {
         imView = findViewById(R.id.rectangleBackground);
         rectangle = (GradientDrawable) imView.getBackground();
 
+        RxBleClient.updateLogOptions(new LogOptions.Builder()
+                .setLogLevel(LogConstants.INFO)
+                .setMacAddressLogSetting(LogConstants.MAC_ADDRESS_FULL)
+                .setUuidsLogSetting(LogConstants.UUIDS_FULL)
+                .setShouldLogAttributeValues(true)
+                .build()
+        );
+
+        // Enable Bluetooth
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        int REQUEST_ENABLE_BT = 1;
+        this.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+
+        myLampi = getMyLampi(lampiMacAddress);
+
         seekBarCreation();
 
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                getByteValues("hsv");
+                getByteValues("brightness");
 
+//                temp.dispose();
+            }
+        }, 0, 3000);
 
 
         button.bringToFront();
@@ -333,44 +335,46 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        handler.postDelayed(runnable = new Runnable() {
-            public void run() {
-                handler.postDelayed(runnable, delay);
-                // Constantly read the KIVY UI and write to Android
-//                byte[] byteToSetAndroid = getByteValues("brightness");
-//                temp.dispose();
-//                Log.d("ConstantlyRun", brightness_position + "");
-//                brightness_seekbar.setPosition(brightness_position, 0);
-//                writeToLamp("brightness", getByteValues("brightness"));
-            }
-        }, 1000);
-        super.onResume();
-    }
+
+    // Every second, run
+
+
+//
+//    @Override
+//    protected void onResume() {
+//        handler.postDelayed(runnable = new Runnable() {
+//            public void run() {
+//                handler.postDelayed(runnable, delay);
+//                // Constantly read the KIVY UI and write to Android
+////                byte[] byteToSetBrightness = getByteValues("brightness");
+//
+////                writeToLamp("brightness", getByteValues("brightness"));
+//            }
+//        }, 5000);
+//        super.onResume();
+//    }
 
     public void seekBarCreation() {
         colorSeekBar = findViewById(R.id.color_seek_bar);
         saturation_seekbar = findViewById((R.id.saturation_seekbar));
         brightness_seekbar = findViewById((R.id.brightness_seekbar));
-        byte[] brightness_level_lamp = getByteValues("brightness");
-//        Log.d("Result", "BRIGHT : " + Arrays.toString(brightness_level_lamp) + " " + brightness_level_lamp[0]);
-
-//        brightness_seekbar.setPosition(0, 0);
-//        writeToLamp("brightness", brightness_level_lamp);
 
         colorSeekBar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
-            float[] hsv = new float[3];
-            Color.colorToHSV(color,hsv);
-
-            saturation_seekbar.setColorSeeds(new int[]{Color.WHITE, colorSeekBar.getColor()});
             rectangle.setColor(saturation_seekbar.getColor());
+            saturation_seekbar.setColorSeeds(new int[]{Color.WHITE, colorSeekBar.getColor()});
+            if (isNear(colorBarPosition, color_position)) {
+                return;
+            }
 
-            byte[] readingByte = getByteValues("hsv");
-//            temp.dispose();
 
-//            Log.d("Result", "HSV: " + Arrays.toString());
-//            writeToLamp("hsv", new byte[]{100});
+
+            color_position = colorBarPosition;
+            byte[] toWrite = new byte[3];
+            toWrite[0] = getInputByte(color_position)[0];
+            toWrite[1] = getInputByte(saturation_position)[0];
+            toWrite[2] = -1;
+
+            writeToLamp("hsv", toWrite);
 
             if (isOn) {
                 button.setColorFilter(saturation_seekbar.getColor());
@@ -379,6 +383,20 @@ public class MainActivity extends AppCompatActivity {
 
         saturation_seekbar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
             rectangle.setColor(color);
+            if (isNear(colorBarPosition, saturation_position)) {
+                return;
+            }
+
+            saturation_position = colorBarPosition;
+            byte[] toWrite = new byte[3];
+            toWrite[0] = getInputByte(color_position)[0];
+            toWrite[1] = getInputByte(saturation_position)[0];
+            toWrite[2] = -1;
+
+//            byte[] readingByte = getByteValues("hsv");
+            writeToLamp("hsv", toWrite);
+
+
             if (isOn) {
                 button.setColorFilter(saturation_seekbar.getColor());
             }
@@ -386,44 +404,29 @@ public class MainActivity extends AppCompatActivity {
 
 
         brightness_seekbar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
-            float[] hsv = new float[3];
-            Color.colorToHSV(color,hsv);
-//            byte temp = (byte) colorBarPosition;
-//            Log.d("Result", "" +  colorBarPosition + " " + (byte)colorBarPosition);
+            if (isNear(colorBarPosition, brightness_position)) {
+                return;
+            }
 
-            // 0->127->-128->-1
-            // 0->25->50->75->100
-
-//            byte[] byteValue = getByteValues("brightness");
-//            Log.d("Result", "BYTE VALUE: " + Arrays.toString(byteValue));
-
-            // TODO: Set the slider to byteValue (reading input)
-
-
-            // if colorBarPosition < 50, new byte = 0-127
-//            Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                public void run() {
-//                    // yourMethod();
-//
-//                }
-//            }, 100);
-
-
-//            byte[] byteToChange = getInputByte(colorBarPosition);
-//            writeToLamp("brightness", byteToChange);
-
+            brightness_position = colorBarPosition;
+            byte[] byteToChange = getInputByte(colorBarPosition);
+            writeToLamp("brightness", byteToChange);
             rectangle.setColor(saturation_seekbar.getColor());
-            rectangle.setColorFilter(applyLightness(colorBarPosition));
+            rectangle.setColorFilter(applyLightness(100 - brightness_position));
         });
+    }
 
-//        brightness_level_lamp = getByteValues("brightness");
-//        writeToLamp("brightness", brightness_level_lamp);
 
+    private boolean isNear(int colorBarPosition, int position) {
+        return (position == colorBarPosition
+                || position == colorBarPosition - 1
+                || position == colorBarPosition + 1
+                || position == colorBarPosition - 2
+                || position == colorBarPosition + 2);
     }
 
     private PorterDuffColorFilter applyLightness(int progress) {
-        return new PorterDuffColorFilter(Color.argb(progress*255/100, 255, 255, 255), PorterDuff.Mode.SRC_OVER);
+        return new PorterDuffColorFilter(Color.argb(progress * 255 / 100, 255, 255, 255), PorterDuff.Mode.SRC_OVER);
     }
 }
 
