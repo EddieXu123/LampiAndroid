@@ -26,6 +26,8 @@ import com.rtugeek.android.colorseekbar.ColorSeekBar;
 import io.reactivex.disposables.Disposable;
 
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private int brightness_position = 100;
     private int color_position = 100;
     private int saturation_position = 100;
+    private int readsSinceStart = 0;
 
     /**
      * Function to read a specific characteristic of the lamp
@@ -227,16 +230,24 @@ public class MainActivity extends AppCompatActivity {
         readFromLamp("hsv");
         readFromLamp("brightness");
 
+        Timer myTimer = new Timer();
         // Constantly read the KIVY UI for updates (to change app sliders accordingly)
-//        new Timer().scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//                readFromLamp("hsv");
-//                readFromLamp("brightness");
-//
-////                temp.dispose();
-//            }
-//        }, 0, 3000);
+        myTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (readsSinceStart < 7) {
+                    readsSinceStart++;
+                    readFromLamp("hsv");
+                    readFromLamp("brightness");
+                    if (readsSinceStart == 5) {
+                        Log.d("Result", "WARNING: SOON");
+                    }
+                } else {
+                    myTimer.cancel();
+                    Log.d("Result", "NO MORE");
+                }
+            }
+        }, 0, 1000);
 
 
         isOn = true;
