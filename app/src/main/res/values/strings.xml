@@ -1,5 +1,12 @@
 <resources>
-    <string name="app_name">Lamp</string>
+    <string name="app_name">My Device</string>
     <string name="label_completed">label_completed</string>
     <string name="completed_tasks">completed_tasks</string>
+<!--    <string-array name="brightnessQueries">-->
+<!--        <item>brighter</item>-->
+<!--        <item>make my lamp happy</item>-->
+<!--        <item>turn my brightness up to $number1</item>-->
+<!--        <item>turn my brightness down to $number1</item>-->
+<!--        <item>turn my brightness $number1</item>-->
+<!--    </string-array>-->
 </resources>

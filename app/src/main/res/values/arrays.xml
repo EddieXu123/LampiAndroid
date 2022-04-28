@@ -4,6 +4,7 @@
         <item>@color/red</item>
         <item>@color/yellow</item>
         <item>@color/green</item>
+        <item>@color/teal_200</item>
         <item>@color/blue</item>
         <item>@color/red</item>
     </array>
@@ -11,4 +12,22 @@
         <item>@color/black</item>
         <item>@color/white</item>
     </array>
+    <string-array name="onOffQueries">
+        <item>turn my lamp $text1</item>
+        <item>start making a $text1</item>
+        <item>start making an $text1</item>
+        <item>craft $text1 items</item>
+        <item>produce $text1 times</item>
+    </string-array>
+
+    <string-array name="query">
+        <!--        <item>turn my lamp on</item>-->
+        <item>on</item>
+        <item>off</item>
+        <!--        <item>brighter</item>-->
+        <!--        <item>make my lamp happy</item>-->
+        <!--        <item>turn my brightness up to $number1</item>-->
+        <!--        <item>turn my brightness down to $number1</item>-->
+        <!--        <item>turn my brightness $number1</item>-->
+    </string-array>
 </resources>
