@@ -1,5 +1,7 @@
 package com.example.myfirstapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
@@ -10,12 +12,18 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.polidea.rxandroidble2.LogConstants;
 import com.polidea.rxandroidble2.LogOptions;
 import com.polidea.rxandroidble2.RxBleClient;
@@ -232,26 +240,35 @@ public class MainActivity extends AppCompatActivity {
 
         Timer myTimer = new Timer();
         // Constantly read the KIVY UI for updates (to change app sliders accordingly)
-        myTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (readsSinceStart < 7) {
-                    readsSinceStart++;
-                    readFromLamp("hsv");
-                    readFromLamp("brightness");
-                    if (readsSinceStart == 5) {
-                        Log.d("Result", "WARNING: SOON");
-                    }
-                } else {
-                    myTimer.cancel();
-                    Log.d("Result", "NO MORE");
-                }
-            }
-        }, 0, 1000);
+//        myTimer.scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (readsSinceStart < 7) {
+//                    readsSinceStart++;
+//                    readFromLamp("hsv");
+//                    readFromLamp("brightness");
+//                    if (readsSinceStart == 5) {
+//                        Log.d("Result", "WARNING: SOON");
+//                    }
+//                } else {
+//                    myTimer.cancel();
+//                    Log.d("Result", "NO MORE");
+//                }
+//            }
+//        }, 0, 1000);
 
 
         isOn = true;
+        handleIntent(this.getIntent());
     }
+
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        Log.d("Result", "CALLBACK");
+//        this.handleIntent(intent);
+//    }
+
 
 
     /**
@@ -344,5 +361,48 @@ public class MainActivity extends AppCompatActivity {
     private PorterDuffColorFilter applyLightness(int progress) {
         return new PorterDuffColorFilter(Color.argb(progress * 255 / 100, 255, 255, 255), PorterDuff.Mode.SRC_OVER);
     }
+
+    private void handleIntent(Intent data) {
+        Log.d("Result", data.getAction() + " EDDIE " + data.getData());
+        switch (data.getAction()) {
+            case Intent.ACTION_VIEW:
+                Log.d("Result", "THIS WAY");
+                handleDeepLink(data.getData());
+                break;
+            default:
+                Log.d("Result", "NOTHING CHANGES");
+                break;
+        }
+    }
+
+    private void handleDeepLink(Uri data) {
+        switch(data.getPath()) {
+            case "/power":
+                Log.d("Result", "ENTERED GOOD");
+                String featureType = data.getQueryParameter("featureName");
+//                navigateToActivity(featureType);
+                writeToLamp("onOff", new byte[]{1});
+                break;
+            default:
+                Log.d("Result", "ENTERED BAD");
+                navigateToActivity(data.getQueryParameter("featureName"));
+                break;
+        }
+    }
+
+    private void navigateToActivity(String featureType) {
+        switch (featureType) {
+            case "brightness":
+                writeToLamp("onOff", new byte[]{1});
+
+            default:
+                Log.d("Result", "NONE");
+
+        }
+    }
+
+    private void goToDefaultView() {
+    }
+
 }
 

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">My First App</string>
+    <string name="app_name">Lamp</string>
+    <string name="label_completed">label_completed</string>
+    <string name="completed_tasks">completed_tasks</string>
 </resources>
