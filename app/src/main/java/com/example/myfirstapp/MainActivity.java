@@ -436,11 +436,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "and change the saturation to 0":
+            case "and change my saturation to 0":
+            case "and change my saturation off":
             case "and turn my saturation to 0":
             case "and turn my saturation off":
             case "and turn the saturation off":
             case "and turn off the saturation":
+            case "and turn off my saturation":
             case "and turn the saturation all the way down":
+            case "and turn my saturation all the way down":
                 Log.d("Result", "COLOR POS: " + color_position);
                 writeToLamp("hsv", new byte[]{getInputByte(color_position)[0], 0, -1});
                 saturation_position = 0;
@@ -468,6 +472,8 @@ public class MainActivity extends AppCompatActivity {
                 saturation_seekbar.setPosition(75, 0);
                 break;
             case "and change the saturation to 100":
+            case "and change the saturation all the way up":
+            case "and change my saturation all the way up":
             case "and turn the saturation to 100":
             case "and turn my saturation to 100":
             case "and turn the saturation all the way up":
@@ -485,6 +491,8 @@ public class MainActivity extends AppCompatActivity {
 
             case "and change the lamp color to red":
             case "and change my lamp color to red":
+            case "and change the lamp color red":
+            case "and change my lamp color red":
             case "and turn the color red":
             case "and turn the color to red":
             case "and turn my lamp red":
@@ -493,6 +501,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to yellow":
             case "and change my lamp color to yellow":
+            case "and change the lamp color yellow":
+            case "and change my lamp color yellow":
             case "and turn the color yellow":
             case "and turn the color to yellow":
             case "and turn my lamp yellow":
@@ -500,6 +510,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to green":
             case "and change my lamp color to green":
+            case "and change the lamp color green":
+            case "and change my lamp color green":
             case "and turn the color green":
             case "and turn the color to green":
             case "and turn my lamp green":
@@ -507,6 +519,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to purple":
             case "and change my lamp color to purple":
+            case "and change the lamp color purple":
+            case "and change my lamp color purple":
             case "and turn the color purple":
             case "and turn the color to purple":
             case "and turn my lamp purple":
@@ -514,6 +528,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to blue":
             case "and change my lamp color to blue":
+            case "and change the lamp color blue":
+            case "and change my lamp color blue":
             case "and turn the color blue":
             case "and turn the color to blue":
             case "and turn my lamp blue":
@@ -521,6 +537,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to magenta":
             case "and change my lamp color to magenta":
+            case "and change the lamp color magenta":
+            case "and change my lamp color magenta":
             case "and turn the color magenta":
             case "and turn the color to magenta":
             case "and turn my lamp magenta":
@@ -528,6 +546,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to orange":
             case "and change my lamp color to orange":
+            case "and change the lamp color orange":
+            case "and change my lamp color orange":
             case "and turn the color orange":
             case "and turn the color to orange":
             case "and turn my lamp orange":
@@ -535,16 +555,22 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "and change the lamp color to turquoise":
             case "and change my lamp color to turquoise":
+            case "and change the lamp color turquoise":
+            case "and change my lamp color turquoise":
             case "and turn the color turquoise":
             case "and turn the color to turquoise":
             case "and turn my lamp turquoise":
             case "and change the lamp color to teal":
             case "and change my lamp color to teal":
+            case "and change the lamp color teal":
+            case "and change my lamp color teal":
             case "and turn the color teal":
             case "and turn the color to teal":
             case "and turn my lamp teal":
             case "and change the lamp color to cyan":
             case "and change my lamp color to cyan":
+            case "and change the lamp color cyan":
+            case "and change my lamp color cyan":
             case "and turn the color cyan":
             case "and turn the color to cyan":
             case "and turn my lamp cyan":
@@ -552,6 +578,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "and change the brightness to 0":
+            case "and change my brightness to 0":
             case "and turn my brightness to 0":
             case "and turn my brightness off":
             case "and turn the brightness off":
