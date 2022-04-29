@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.GradientDrawable;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -25,9 +26,6 @@ import com.rtugeek.android.colorseekbar.ColorSeekBar;
 
 import io.reactivex.disposables.Disposable;
 
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private int brightness_position = 100;
     private int color_position = 100;
     private int saturation_position = 100;
-    private int readsSinceStart = 0;
 
     /**
      * Function to read a specific characteristic of the lamp
@@ -141,7 +138,25 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(
                         characteristicValue -> {
                             // Characteristic value confirmed.
-                            Log.d("Result", "CHANGED: " + Arrays.toString(characteristicValue));
+                            switch (bar) {
+                                case "brightness":
+                                    brightness_position = byteToInt(characteristicValue[0]);
+                                    brightness_seekbar.setPosition(brightness_position, 0);
+                                    break;
+                                case "hsv":
+                                    color_position = byteToInt(characteristicValue[0]);
+                                    colorSeekBar.setPosition(color_position, 0);
+
+                                    saturation_position = byteToInt(characteristicValue[1]);
+                                    saturation_seekbar.setPosition(saturation_position, 0);
+                                    break;
+                                case "onOff":
+                                    isOn = characteristicValue[0] == (byte) 1;
+                                    button.setColorFilter(isOn ? saturation_seekbar.getColor() : Color.WHITE);
+                                    break;
+                            }
+
+                            rectangle.setColorFilter(applyLightness(100 - brightness_position));
                         },
                         throwable -> {
                             // Handle an error here.
@@ -149,8 +164,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                 );
     }
-
-    // Function to get Lampi device with MAC address "lampiMac"
 
     /**
      * Function to get the RxBleDevice with MAC address lampiMAC
@@ -162,8 +175,6 @@ public class MainActivity extends AppCompatActivity {
 
         return rxBleClient.getBleDevice(lampiMAC);
     }
-
-    //
 
     /**
      * Function for reading from Lamp: Used to convert Byte[] read from Lamp to change the seekbars of the app UI
@@ -204,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Instantiate button, seekbars, and rectangle background
-        button = (ImageButton) this.findViewById(R.id.imageButton);
+        button = this.findViewById(R.id.imageButton);
         button.setColorFilter(Color.WHITE);
         ImageView imView = findViewById(R.id.rectangleBackground);
         rectangle = (GradientDrawable) imView.getBackground();
@@ -230,29 +241,9 @@ public class MainActivity extends AppCompatActivity {
         readFromLamp("hsv");
         readFromLamp("brightness");
 
-        Timer myTimer = new Timer();
-        // Constantly read the KIVY UI for updates (to change app sliders accordingly)
-        myTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (readsSinceStart < 7) {
-                    readsSinceStart++;
-                    readFromLamp("hsv");
-                    readFromLamp("brightness");
-                    if (readsSinceStart == 5) {
-                        Log.d("Result", "WARNING: SOON");
-                    }
-                } else {
-                    myTimer.cancel();
-                    Log.d("Result", "NO MORE");
-                }
-            }
-        }, 0, 1000);
-
-
         isOn = true;
+        handleIntent(this.getIntent());
     }
-
 
     /**
      * Function to create the seekbars and button for the app UI
@@ -343,6 +334,52 @@ public class MainActivity extends AppCompatActivity {
     // Change the brightness of the app
     private PorterDuffColorFilter applyLightness(int progress) {
         return new PorterDuffColorFilter(Color.argb(progress * 255 / 100, 255, 255, 255), PorterDuff.Mode.SRC_OVER);
+    }
+
+    /* Below is code for Google Assistant Integration */
+    private void handleIntent(Intent data) {
+        switch (data.getAction()) {
+            case Intent.ACTION_VIEW:
+                Log.d("Result", "THIS WAY");
+                handleDeepLink(data.getData());
+                break;
+            case Intent.ACTION_MAIN:
+                Log.d("Result", "MAIN ACTION");
+                break;
+            default:
+                Log.d("Result", "NOTHING CHANGES");
+                break;
+        }
+    }
+
+    // Handle the action
+    private void handleDeepLink(Uri data) {
+        if ("/open".equals(data.getPath())) {
+            String seekbarType = data.getQueryParameter("slider_name");
+            String seekbarNewValue = data.getQueryParameter("slider_value");
+            navigateToActivity(seekbarType, seekbarNewValue);
+        }
+    }
+
+    private void navigateToActivity(String seekbarType, String seekBarValue) {
+        byte[] hsvByte = new byte[3];
+        hsvByte[2] = -1; // val
+        if (seekbarType.equals("saturation")) {
+            hsvByte[1] = Byte.parseByte(seekBarValue);
+            hsvByte[0] = getInputByte(color_position)[0];
+        } else {
+            // color
+            hsvByte[0] = Byte.parseByte(seekBarValue);
+            hsvByte[1] = getInputByte(saturation_position)[0];
+        }
+        switch (seekbarType.toLowerCase()) {
+            case "saturation":
+            case "color":
+                writeToLamp(seekbarType, hsvByte);
+                break;
+            default: // brightness or onOff
+                writeToLamp(seekbarType, new byte[]{getInputByte(Integer.parseInt(seekBarValue))[0]});
+            }
     }
 }
 

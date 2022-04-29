@@ -1,0 +1,70 @@
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+<actions>
+    <action intentName="actions.intent.GET_THING">
+        <fulfillment urlTemplate="https://eddiexu.page.link/search{?query}">
+            <parameter-mapping intentParameter="thing.name" urlParameter="query"/>
+        </fulfillment>
+    </action>
+
+        <action intentName="custom.actions.intent.POWER_ON" queryPatterns="@array/onOffQueries">
+            <fulfillment urlTemplate="https://eddiexu.page.link/power{?featureName}">
+                <parameter-mapping
+                    intentParameter="feature"
+                    urlParameter="featureName" />
+            </fulfillment>
+            <parameter name="feature">
+                <entity-set-reference entitySetId="OnOffEntitySet"/>
+            </parameter>
+        </action>
+
+        <entity-set entitySetId="OnOffEntitySet">
+            <entity name="On" identifier="on"/>
+            <entity name="Off" identifier="off"/>
+        </entity-set>
+
+
+    <action intentName="actions.intent.UPDATE_SOFTWARE_APPLICATION">
+        <fulfillment urlTemplate="myapp://custom-deeplink{?name,value}">
+            <!-- e.g. name = "Notifications" -->
+            <!-- (Optional) Require a field eg.name for fulfillment with required="true" -->
+            <parameter-mapping
+                intentParameter="softwareApplication.softwareSetting.name"
+                required="true"
+                urlParameter="name" />
+            <!-- e.g. value = "Disabled" -->
+            <parameter-mapping
+                intentParameter="softwareApplication.softwareSetting.value"
+                urlParameter="value" />
+        </fulfillment>
+
+        <!-- Provide a fallback fulfillment with no required parameters. For example, to your app search or router deeplink -->
+        <fulfillment urlTemplate="myapp://deeplink" />
+    </action>
+
+    <action intentName="custom.actions.intent.SEEKBAR_INTENTS" queryPatterns="@array/seekbarQueries">
+        <parameter name="value1" type="https://schema.org/Number" />
+        <parameter name="text1" type="https://schema.org/Text" />
+
+        <fulfillment urlTemplate="https://eddiexu.page.link/custom-requests{?slider_value,slider_name}">
+            <parameter-mapping intentParameter="value1" urlParameter="slider_value" />
+            <parameter-mapping intentParameter="text1" urlParameter="slider_name" />
+        </fulfillment>
+    </action>
+
+    <action intentName="actions.intent.OPEN_APP_FEATURE">
+        <fulfillment urlTemplate="https://eddiexu.page.link/open{?featureName}">
+            <parameter-mapping
+                intentParameter="feature"
+                urlParameter="featureName" />
+        </fulfillment>
+        <parameter name="feature">
+            <entity-set-reference entitySetId="FeaturesEntitySet" />
+        </parameter>
+    </action>
+
+    <entity-set entitySetId="FeaturesEntitySet">
+        <entity
+            name="Home"
+            identifier="home" />
+    </entity-set>
+</actions>

@@ -7,6 +7,35 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:129782522931:android:18c566370febf5a2646f46",
+        "android_client_info": {
+          "package_name": "com.eddiexu.myfirstapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "129782522931-3a3lcrr0oq6o3jeb14jd2eabg33ck5ls.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkcnlL4YtM4qn5JTmhaqIqmBpC3LEWAt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "129782522931-3a3lcrr0oq6o3jeb14jd2eabg33ck5ls.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:129782522931:android:27a53d23d722da9f646f46",
         "android_client_info": {
           "package_name": "com.example.myfirstapp"

@@ -4,6 +4,7 @@
         <item>@color/red</item>
         <item>@color/yellow</item>
         <item>@color/green</item>
+        <item>@color/teal_200</item>
         <item>@color/blue</item>
         <item>@color/red</item>
     </array>
@@ -11,4 +12,13 @@
         <item>@color/black</item>
         <item>@color/white</item>
     </array>
+    <string-array name="onOffQueries">
+        <item>turn $text1 my lamp</item>
+    </string-array>
+
+    <string-array name="seekbarQueries">
+        <item>turn my $text1 (to)? $value1? </item>
+        <item>change my $text1 (to)? $value1? </item>
+        <item>increase my $text1 (to)? $value1? </item>
+    </string-array>
 </resources>
