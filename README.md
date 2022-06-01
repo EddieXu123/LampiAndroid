@@ -11,5 +11,8 @@ With Google Assistant, I followed Google's quick tutorials on how to integrate b
 
 When the app first runs, it will connect to the lamp and will display a UI similar to that of the lamp's UI (representing the HSV of the lamp). This functionality is done through reading from the lamp. Then, if a user were to drag the hue, saturation, or brightness bars in their app, the lamp/Web/iOS UI's will all update accordingly, as well as the LED lights. The power button will also turn the lamp on/off, and update all the other UIs accordingly. Finally, Google Assistant works. In addition, a user can say many different things that result in the same action ("Hey Google, turn my brightness to 0 percent", "Hey Google, turn my brightness down all the way", "Hey Google, turn my brightness to zero" all result in the same thing).
 
+
+
+### VIDEO DEMO (What I submitted to the professor but it's kinda scruffy haha)
 https://user-images.githubusercontent.com/50087436/171494068-5bac6cdf-4dca-43e8-bcb4-6d5f5a48aa09.mp4
 
